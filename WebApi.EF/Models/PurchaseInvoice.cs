@@ -28,6 +28,7 @@ namespace WebApi.EF.Models
         public virtual Contractor Contractor { get; set; } = null!;
         public virtual FinancialYear FinancialYear { get; set; } = null!;
         public virtual Firm Firm { get; set; } = null!;
+        public virtual PaymentMethod PaymentMethod { get; set; } = null!;
         public virtual ICollection<CompensationPosition> CompensationPositions { get; set; }
         public virtual ICollection<PurchaseInvoicePayment> PurchaseInvoicePayments { get; set; }
         public virtual ICollection<PurchaseInvoicePosition> PurchaseInvoicePositions { get; set; }

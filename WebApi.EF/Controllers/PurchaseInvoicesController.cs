@@ -1,27 +1,33 @@
-﻿using Dapper;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
-using WebApi.Dapper.Models;
+using WebApi.EF.Models;
+using Dapper;
 
-namespace WebApi.Dapper.Controllers
+namespace WebApi.EF.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
     public class PurchaseInvoicesController : ControllerBase
     {
-        private readonly IDbConnectionProvider _dbConnectionProvider;
+        private readonly DapperTechTalkDbContext _dbContext;
 
-        public PurchaseInvoicesController(IDbConnectionProvider dbConnectionProvider)
+        public PurchaseInvoicesController(DapperTechTalkDbContext dbContext)
         {
-            _dbConnectionProvider = dbConnectionProvider;
+            _dbContext = dbContext;
         }
 
         [HttpGet]
         public async Task<IActionResult> GetAll([Required] int firmId, [Required] int financialYearId)
         {
-            using (var connection = _dbConnectionProvider.GetConnection())
-            {
-                var sql = @"
+            //var purchaseInvoices = await _dbContext.PurchaseInvoices
+            //    .Include(pi => pi.Contractor)
+            //    .Include(pi => pi.PaymentMethod)
+            //    .Where(pi => pi.FirmId == firmId && pi.FinancialYearId == financialYearId)
+            //    .ToListAsync();
+
+            var sql = @"
                     SELECT
                         pi.Id, pi.FirmId, pi.FinancialYearId, pi.InvoiceNumber, pi.InnerInvoiceNumber, pi.InvoiceDate, pi.PaymentDate, pi.Description, pi.ContractorId,
                         pi.PaymentMethodId, pi.IsAdvancePayment, pi.PurchaseDate,
@@ -35,7 +41,9 @@ namespace WebApi.Dapper.Controllers
                         pi.FirmId = @firmId
 	                    AND pi.FinancialYearId = @financialYearId";
 
-                var bankAccounts = await connection.QueryAsync<PurchaseInvoice, Contractor, PaymentMethod, PurchaseInvoice>(
+            using (var connection = _dbContext.Database.GetDbConnection())
+            {
+                var purchaseInvoices = await connection.QueryAsync<PurchaseInvoice, Contractor, PaymentMethod, PurchaseInvoice>(
                     sql,
                     (purchaseInvoice, contractor, paymentMethod) =>
                     {
@@ -44,11 +52,10 @@ namespace WebApi.Dapper.Controllers
                         return purchaseInvoice;
                     },
                     new { firmId, financialYearId },
-                    splitOn: "Id"
-                );
+                    splitOn: "Id");
 
-                return Ok(bankAccounts);
-            }
+                return Ok(purchaseInvoices);
+            }                        
         }
     }
 }

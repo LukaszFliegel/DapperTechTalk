@@ -407,6 +407,12 @@ namespace WebApi.EF.Models
                     .HasForeignKey(d => d.FirmId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_PurchaseInvoices_Firms");
+
+                entity.HasOne(d => d.PaymentMethod)
+                    .WithMany(p => p.PurchaseInvoices)
+                    .HasForeignKey(d => d.PaymentMethodId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_PurchaseInvoices_PaymentMethods");
             });
 
             modelBuilder.Entity<PurchaseInvoicePayment>(entity =>
