@@ -35,7 +35,7 @@ namespace WebApi.Dapper.Controllers
                         pi.FirmId = @firmId
 	                    AND pi.FinancialYearId = @financialYearId";
 
-                var bankAccounts = await connection.QueryAsync<PurchaseInvoice, Contractor, PaymentMethod, PurchaseInvoice>(
+                var purchaseInvoices = await connection.QueryAsync<PurchaseInvoice, Contractor, PaymentMethod, PurchaseInvoice>(
                     sql,
                     (purchaseInvoice, contractor, paymentMethod) =>
                     {
@@ -47,7 +47,7 @@ namespace WebApi.Dapper.Controllers
                     splitOn: "Id"
                 );
 
-                return Ok(bankAccounts);
+                return Ok(purchaseInvoices);
             }
         }
     }
